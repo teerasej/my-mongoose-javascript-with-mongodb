@@ -48,6 +48,21 @@ async function main() {
         
     });
 
+    app.patch('/users', async (request, response) => {
+        console.log(request.body)
+    
+        // ใช้คำสั่ง updateOne เพื่ออัพเดตข้อมูล
+        // สังเกตว่า parameter แรกคือ condition และ parameter ที่ 2 คือค่าที่จะส่งเข้าไปอัพเดต
+        await UserModel.updateOne({ email: request.body.email }, request.body)
+    
+        response.status(200).send('ok PATCH')
+    
+        
+        // ใช้ .findOneAndUpdate แทน ถ้าต้องการ doc กลับมาใช้งานจาก database ด้วย
+        // const updatedDoc = await userModel.findOneAndUpdate({ email: request.body.email }, request.body)
+        // response.status(200).send(updatedDoc)
+    })
+
 
 
     // เริ่มการทำงาน
