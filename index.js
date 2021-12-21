@@ -2,7 +2,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import UserModel from './schemas/user.js';
-
+import ProductModel from './schemas/product.js';
 
 const app = express();
 const port = 3000;
@@ -89,12 +89,44 @@ async function main() {
 
         const passValidation = await doc.comparePassword(request.body.password)
 
-        if(passValidation) {
+        if (passValidation) {
             response.status(200).send('ok PASS')
         } else {
             response.status(401).send('password is not correct')
         }
-        
+
+    })
+
+    app.get('/products/expansive-list', async (request, response) => {
+
+
+        const docs = await ProductModel.aggregate([
+            {
+                $project: {
+                    productName: 1,
+                    price: 1,
+                    color: 1
+                }
+            },
+            {
+                $match: {
+                    color: "Mauv"
+                }
+            },
+            {
+                $addFields: {
+                    expensive: {
+                        $gte: [
+                            '$price',
+                            1000
+                        ]
+                    }
+                }
+            }
+        ])
+
+        response.json(docs)
+
     })
 
 
