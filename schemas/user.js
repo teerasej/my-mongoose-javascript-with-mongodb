@@ -9,11 +9,18 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    email: {
+    password: {
         type: String,
         required: true,
         trim: true,
-        minlength: 6
+        minlength: 6,
+        validate: {
+            validator: function (value) {
+
+                return value == '123456'
+            },
+            message: props => `${props.value} is not 123456`
+        }
     },
 });
 
