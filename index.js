@@ -77,6 +77,25 @@ async function main() {
         response.status(200).send('ok DELETE')
     })
 
+    app.post('/users/login', async (request, response) => {
+        console.log(request.body)
+
+        const doc = await UserModel.findOne({ email: request.body.email });
+
+        if (!doc) {
+            response.status(404).send('email not found')
+            return
+        }
+
+        const passValidation = await doc.comparePassword(request.body.password)
+
+        if(passValidation) {
+            response.status(200).send('ok PASS')
+        } else {
+            response.status(401).send('password is not correct')
+        }
+        
+    })
 
 
     // เริ่มการทำงาน
