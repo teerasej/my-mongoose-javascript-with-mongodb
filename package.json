@@ -9,7 +9,10 @@
   "author": "Teerasej Jiraphatchandej",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.17.2",
+    "joi": "^17.5.0",
+    "joi-password-complexity": "^5.1.0",
     "mongoose": "^6.1.2"
   },
   "type": "module"
