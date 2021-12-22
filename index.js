@@ -12,7 +12,7 @@ app.use(express.json());
 main().catch(function (error) { console.log(error) });
 
 async function main() {
-    await mongoose.connect('mongodb://localhost:27017/dating_app');
+    const connection = await mongoose.connect('mongodb://localhost:27017/dating_app');
 
     // Route URL, เมนูในร้าน
     app.get('/', function (request, response) {
@@ -25,9 +25,13 @@ async function main() {
         // ปรับแต่่งมาใช้ try/catch เพื่อรองรับกรณีที่ mongoose คืนค่า error ออกมาจากการใช้งาน schema
         let createdUser
         try {
+            const session = await connection.startSession()
+            session.startTransaction()
 
             const newUser = new UserModel(request.body)
-            createdUser = await newUser.save()
+            createdUser = await newUser.save({session})
+
+            await session.commitTransaction()
 
         } catch (error) {
             // ถ้า error ให้ใส่รหัส 500 และข้อความ error กลับไปที่ client
@@ -56,16 +60,10 @@ async function main() {
     app.patch('/users', async (request, response) => {
         console.log(request.body)
 
-        // ใช้คำสั่ง updateOne เพื่ออัพเดตข้อมูล
-        // สังเกตว่า parameter แรกคือ condition และ parameter ที่ 2 คือค่าที่จะส่งเข้าไปอัพเดต
         await UserModel.updateOne({ email: request.body.email }, request.body)
 
         response.status(200).send('ok PATCH')
 
-
-        // ใช้ .findOneAndUpdate แทน ถ้าต้องการ doc กลับมาใช้งานจาก database ด้วย
-        // const updatedDoc = await UserModel.findOneAndUpdate({ email: request.body.email }, request.body)
-        // response.status(200).send(updatedDoc)
     })
 
     app.delete('/users', async (request, response) => {
@@ -126,6 +124,23 @@ async function main() {
         ])
 
         response.json(docs)
+
+    })
+
+    app.get('/products/preload', async function(request,response) {
+
+
+        const session = await connection.startSession()
+        session.startTransaction()
+
+        let products = await ProductModel.insertMany([
+            { productName: 'iPhone 13 Pro', price: 42900 },
+            { productName: 'iPhone 13', price: 38900 },
+            { productName: 'iPhone 12', price: 28900 }
+          ], { session });
+
+        await session.commitTransaction()
+
 
     })
 
